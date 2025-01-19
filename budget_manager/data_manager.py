@@ -1,5 +1,5 @@
-import pandas as pd
 from pathlib import Path
+import pandas as pd
 
 class DataManager:
     def __init__(self, limits_manager, csv_file_path="budget_data.csv"):

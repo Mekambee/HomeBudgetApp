@@ -1,5 +1,5 @@
-import csv
 from pathlib import Path
+import csv
 
 class LimitsManager:
     def __init__(self, limits_file="categories.csv"):

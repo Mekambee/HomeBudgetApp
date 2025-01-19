@@ -1,8 +1,9 @@
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from io import BytesIO
 from PIL import Image, ImageTk
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+matplotlib.use('Agg')
 
 class StatsManager:
     def __init__(self, data_manager, limits_manager):
@@ -17,10 +18,11 @@ class StatsManager:
             return None
 
         expenses_by_category = expenses.groupby("Category")["Amount"].sum()
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(9, 6))
         ax.pie(expenses_by_category, labels=expenses_by_category.index, autopct="%1.1f%%", startangle=90)
         ax.axis("equal")
         ax.set_title("Expenses by Categories")
+
 
         buf = BytesIO()
         plt.savefig(buf, format="png")
@@ -44,12 +46,28 @@ class StatsManager:
         spent_values = [expenses_by_category[cat] for cat in category_names]
         limit_values = [limits.get(cat, 0) for cat in category_names]
 
-        fig, ax = plt.subplots()
-        ax.bar(category_names, spent_values, label="Spent", alpha=0.7)
-        ax.bar(category_names, limit_values, label="Limit", alpha=0.7)
-        ax.set_ylabel("price in PLN")
-        ax.set_title("Expenses vs Limits comparision")
-        ax.legend()
+        fig, ax = plt.subplots(figsize=(9, 6))
+
+        bars_spent = ax.bar(category_names, spent_values, label="Over limit", color="red", alpha=0.9, width=0.7)
+        ax.bar(category_names, limit_values, label="Limit", color="orange", alpha=0.6, width=0.7)
+
+        ax.set_ylabel("Price in PLN")
+        ax.set_title("Expenses vs Limits Comparison")
+
+        ax.set_facecolor("#f0f0f0")
+
+        legend_patches = [
+            mpatches.Patch(color="red", label="Over limit"),
+            mpatches.Patch(color="#fa6f05", label="Spent"),
+            mpatches.Patch(color="#f2d268", label="Limit"),
+        ]
+        ax.legend(handles=legend_patches, loc="upper left", bbox_to_anchor=(0.80, 1.15), borderaxespad=0.)
+
+        for bar, spent, limit in zip(bars_spent, spent_values, limit_values):
+            color = "black" if spent <= limit else "red"
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 2,
+                    f"{spent:.2f}zł / {limit:.2f}zł", ha='center', va='bottom',
+                    fontsize=10, fontweight='bold', color=color)
 
         buf = BytesIO()
         plt.savefig(buf, format="png")

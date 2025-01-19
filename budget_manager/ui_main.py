@@ -30,7 +30,7 @@ class App:
         self.amount_entry = tk.Entry(self.entry_frame, textvariable=self.amount_var)
         self.amount_entry.grid(row=0, column=2)
 
-        self.add_button = tk.Button(self.entry_frame, text="Add new expense", command=self.add_record)
+        self.add_button = tk.Button(self.entry_frame, text="Add new expense/income", command=self.add_record)
         self.add_button.grid(row=0, column=3, padx=5)
 
         self.add_category_button = tk.Button(self.entry_frame, text="Add category", command=self.add_category)
@@ -75,6 +75,7 @@ class App:
             self.data_manager.add_record(record_type, category, amount, date)
             self.update_summary()
             if record_type == "expense":
+                self.check_limit_info(category)
                 self.refresh_charts()
         except ValueError as e:
             messagebox.showerror("Error", str(e))
@@ -86,12 +87,18 @@ class App:
             if not re.match(r'^[A-Za-z]+$', new_category):
                 messagebox.showerror("Error", "Category name must contain only letters (A-Za-z)!")
                 return
+
+            new_limit = simpledialog.askfloat("Add new category", f"Enter limit for '{new_category}' category \n(No value means limit = 0.0)")
+            if new_limit is None:
+                new_limit = 0.0
             try:
-                self.limits_manager.add_category(new_category)
+                self.limits_manager.add_category(new_category, new_limit)
                 self.categories = self.limits_manager.get_all_categories()
                 self.update_category_dropdown()
             except ValueError as e:
                 messagebox.showerror("Error", str(e))
+        else:
+            return
 
     def update_category_dropdown(self):
         """Updates the category dropdown with the current list of categories"""
@@ -106,7 +113,7 @@ class App:
         total_expenses = self.data_manager.get_total_expenses()
         balance = self.data_manager.get_balance()
         self.summary_label.config(
-            text=f"Income: {total_income:.2f} zł | Expenses: {total_expenses:.2f} zł | Balance: {balance:.2f} zł"
+            text=f"Total Income: {total_income:.2f} zł | Total Expenses: {total_expenses:.2f} zł | Your Balance: {balance:.2f} zł"
         )
 
     def show_pie_chart(self):
@@ -134,3 +141,29 @@ class App:
 
         self.show_bar_chart()
         self.show_pie_chart()
+
+    def check_limit_info(self, category):
+        """Shows how much is left or how much over the limit in the given category."""
+        expenses = self.data_manager.df
+        expenses_by_cat = expenses[expenses["Type"] == "expense"].groupby("Category")["Amount"].sum()
+        current_expenses = expenses_by_cat.get(category, 0)
+
+        limit = self.limits_manager.get_limit(category)
+        if limit is None:
+            return
+
+        if limit <= 0:
+            return
+
+        if current_expenses > limit:
+            over = current_expenses - limit
+            messagebox.showwarning(
+                "Limit exceeded",
+                f"Expense successfully added! You have exceeded the limit for '{category}' by {over:.2f} zł!"
+            )
+        else:
+            left = limit - current_expenses
+            messagebox.showinfo(
+                "Limit status",
+                f"Expense successfully added! You have {left:.2f} zł left to reach the limit for '{category}'."
+            )
