@@ -9,6 +9,8 @@ import re
 class App:
     def __init__(self, root):
         self.root = root
+        self.root.title("Home Budget Manager")
+
         self.limits_manager = LimitsManager()
         self.data_manager = DataManager(self.limits_manager)
         self.stats_manager = StatsManager(self.data_manager, self.limits_manager)
@@ -18,25 +20,34 @@ class App:
         self.entry_frame = tk.Frame(root, padx=10, pady=10)
         self.entry_frame.pack(side=tk.TOP, fill=tk.X)
 
+        self.record_type_label = tk.Label(self.entry_frame, text="Record Type:")
+        self.record_type_label.grid(row=0, column=0, padx=5, pady=(0, 5))
+
+        self.category_label = tk.Label(self.entry_frame, text="Category:")
+        self.category_label.grid(row=0, column=1, padx=5, pady=(0, 5))
+
+        self.amount_label = tk.Label(self.entry_frame, text="Amount (PLN):")
+        self.amount_label.grid(row=0, column=2, padx=5, pady=(0, 5))
+
         self.record_type_var = tk.StringVar(value="expense")
         self.record_type_dropdown = tk.OptionMenu(self.entry_frame, self.record_type_var, "expense", "income")
-        self.record_type_dropdown.grid(row=0, column=0)
+        self.record_type_dropdown.grid(row=1, column=0, padx=5)
 
         self.category_var = tk.StringVar(value=self.categories[0] if self.categories else "")
         self.category_dropdown = tk.OptionMenu(self.entry_frame, self.category_var, *self.categories)
-        self.category_dropdown.grid(row=0, column=1)
+        self.category_dropdown.grid(row=1, column=1, padx=5)
 
         self.amount_var = tk.StringVar()
-        self.amount_entry = tk.Entry(self.entry_frame, textvariable=self.amount_var)
-        self.amount_entry.grid(row=0, column=2)
+        self.amount_entry = tk.Entry(self.entry_frame, textvariable=self.amount_var, width=10)
+        self.amount_entry.grid(row=1, column=2, padx=5)
 
-        self.add_button = tk.Button(self.entry_frame, text="Add new expense/income", command=self.add_record)
-        self.add_button.grid(row=0, column=3, padx=5)
+        self.add_button = tk.Button(self.entry_frame, text="Add Entry", command=self.add_record)
+        self.add_button.grid(row=1, column=3, padx=5)
 
-        self.add_category_button = tk.Button(self.entry_frame, text="Add category", command=self.add_category)
-        self.add_category_button.grid(row=0, column=4, padx=5)
+        self.add_category_button = tk.Button(self.entry_frame, text="Add Category", command=self.add_category)
+        self.add_category_button.grid(row=1, column=4, padx=5)
 
-        self.summary_label = tk.Label(root, text="", font=("Arial", 12), padx=10, pady=10)
+        self.summary_label = tk.Label(root, text="", font=("Arial", 15), padx=10, pady=10)
         self.summary_label.pack()
         self.update_summary()
 
