@@ -1,7 +1,7 @@
-# 🔴 Ignorowanie wirtualnego środowiska
 .venv/
 venv/
 
+.scannerwork/
 sonar-project.properties
 
 __pycache__/
@@ -29,3 +29,6 @@ Thumbs.db
 
 Pipfile
 Pipfile.lock
+
+budget_data.csv
+categories.csv
