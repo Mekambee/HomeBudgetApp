@@ -54,18 +54,21 @@ class App:
         self.chart_frame = tk.Frame(root)
         self.chart_frame.pack()
 
-        self.pie_chart_button = tk.Button(root, text="Show expenses pie chart", command=self.show_pie_chart)
+        self.pie_chart_button = tk.Button(root, text="Show expenses categories pie chart", command=self.show_pie_chart)
         self.pie_chart_button.pack()
 
-        self.bar_chart_button = tk.Button(root, text="Expenses and limits comparision", command=self.show_bar_chart)
+        self.bar_chart_button = tk.Button(root, text="Show expenses and limits bar chart", command=self.show_bar_chart)
         self.bar_chart_button.pack()
 
-        self.line_chart_button = tk.Button(root, text="Show balance evolution",
+        self.line_chart_button = tk.Button(root, text="Show balance evolution chart",
                                            command=self.show_balance_evolution_chart)
         self.line_chart_button.pack()
 
         self.show_records_button = tk.Button(root, text="Show all records", command=self.show_all_records)
         self.show_records_button.pack()
+
+        self.show_categories_button = tk.Button(root, text="Show categories and their limits", command=self.show_all_categories)
+        self.show_categories_button.pack()
 
         self.chart_label = tk.Label(root)
         self.chart_label.pack()
@@ -87,14 +90,23 @@ class App:
             messagebox.showerror("Error", "Amount must be a positive number!")
             return
 
+        if record_type == "expense":
+            current_balance = self.data_manager.get_balance()
+            if amount > current_balance:
+                messagebox.showerror("Insufficient funds",
+                                     f"You only have {current_balance:.2f} zł. Expense of {amount:.2f} zł cannot be done!")
+                return
+
         date = datetime.date.today().strftime("%Y-%m-%d")
 
         desc = simpledialog.askstring(
             "Description (optional)",
             "Add a description for this record (leave blank if none):"
         )
+        if desc is None:
+            return
         if not desc:
-            desc = ""
+            desc = "No description"
 
         try:
             self.data_manager.add_record(record_type, category, amount, date, description=desc)
@@ -104,6 +116,8 @@ class App:
                 self.refresh_charts()
         except ValueError as e:
             messagebox.showerror("Error", str(e))
+        finally:
+            self.amount_var.set("")
 
     def add_category(self):
         """Adds a new category to the limits manager and updates the category dropdown."""
@@ -208,5 +222,12 @@ class App:
         Calls the StatsManager method to display all records in a new Toplevel window.
         """
         self.stats_manager.show_all_records()
+
+    def show_all_categories(self):
+        """
+        Calls the StatsManager method to display all categories & limits in a new Toplevel window.
+        """
+        self.stats_manager.show_all_categories()
+
 
 

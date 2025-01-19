@@ -149,4 +149,31 @@ class StatsManager:
 
         tree.pack(fill="both", expand=True)
 
+    def show_all_categories(self):
+        """
+        Opens a new window (Toplevel) and displays
+        all categories and their limits in a table (Treeview).
+        """
+        categories_dict = self.limits_manager.categories
+        if not categories_dict:
+            messagebox.showinfo("Info", "No categories found!")
+            return
+
+        table_window = Toplevel()
+        table_window.title("All Categories & Limits")
+        table_window.geometry("400x300")
+
+        columns = ["Category", "Limit"]
+
+        tree = ttk.Treeview(table_window, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+            tree.column(col, width=150, anchor="center")
+
+        for cat, limit in categories_dict.items():
+            tree.insert("", "end", values=(cat, limit))
+
+        tree.pack(fill="both", expand=True)
+
 
