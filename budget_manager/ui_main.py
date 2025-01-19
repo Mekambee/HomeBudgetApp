@@ -49,6 +49,10 @@ class App:
         self.bar_chart_button = tk.Button(root, text="Expenses and limits comparision", command=self.show_bar_chart)
         self.bar_chart_button.pack()
 
+        self.line_chart_button = tk.Button(root, text="Show balance evolution",
+                                           command=self.show_balance_evolution_chart)
+        self.line_chart_button.pack()
+
         self.chart_label = tk.Label(root)
         self.chart_label.pack()
 
@@ -140,6 +144,7 @@ class App:
         self.chart_label.image = None
 
         self.show_bar_chart()
+        self.show_balance_evolution_chart()
         self.show_pie_chart()
 
     def check_limit_info(self, category):
@@ -167,3 +172,13 @@ class App:
                 "Limit status",
                 f"Expense successfully added! You have {left:.2f} zł left to reach the limit for '{category}'."
             )
+
+    def show_balance_evolution_chart(self):
+        """Generates a line chart showing balance evolution by transaction index."""
+        chart_img = self.stats_manager.generate_balance_evolution_chart()
+        if chart_img:
+            self.chart_label.config(image=chart_img)
+            self.chart_label.image = chart_img
+        else:
+            messagebox.showinfo("Warning", "No data to display balance evolution.")
+

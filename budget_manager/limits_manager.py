@@ -89,6 +89,7 @@ class LimitsManager:
             "Food": 500.0,
             "Transport": 300.0,
             "Entertainment": 200.0,
+            "Work Income": 0.0,
             "Other": 200.0
         }
         self.save_limits()

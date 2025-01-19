@@ -77,3 +77,42 @@ class StatsManager:
         img = Image.open(buf)
         tk_image = ImageTk.PhotoImage(img)
         return tk_image
+
+    def generate_balance_evolution_chart(self):
+        """
+        Generates a line chart showing the balance evolution
+        with each consecutive transaction (no dates on X-axis).
+        """
+        if self.data_manager.df.empty:
+            return None
+
+        df = self.data_manager.df.copy()
+
+        df["SignedAmount"] = df.apply(
+            lambda row: row["Amount"] if row["Type"] == "income" else -row["Amount"],
+            axis=1
+        )
+
+        df["CumulativeBalance"] = df["SignedAmount"].cumsum()
+
+        x_values = df.index
+
+        fig, ax = plt.subplots(figsize=(9, 6))
+        ax.plot(x_values, df["CumulativeBalance"], marker="o", color="blue", linewidth=2)
+
+        ax.set_xlabel("Transaction #")
+        ax.set_ylabel("Balance (PLN)")
+        ax.set_title("Evolution of Balance by Transaction Index")
+        ax.grid(True)
+
+        ax.set_xticks(df.index)
+        ax.set_xticklabels(df.index + 1)
+
+        buf = BytesIO()
+        plt.savefig(buf, format="png")
+        plt.close(fig)
+        buf.seek(0)
+
+        img = Image.open(buf)
+        return ImageTk.PhotoImage(img)
+

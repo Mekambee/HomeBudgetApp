@@ -30,9 +30,7 @@ class DataManager:
 
     def create_default_df(self):
         """
-        Tworzy nowy DataFrame z nagłówkami.
-        Opcjonalnie można dodać tutaj przykładowe wpisy, jeśli chcesz, by pojawiały się zawsze
-        przy pustym pliku.
+        Create a new empty default DataFrame with columns only:
         """
         df = pd.DataFrame(columns=["Type", "Category", "Amount", "Date", "Description"])
 
