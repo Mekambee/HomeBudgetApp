@@ -53,6 +53,9 @@ class App:
                                            command=self.show_balance_evolution_chart)
         self.line_chart_button.pack()
 
+        self.show_records_button = tk.Button(root, text="Show all records", command=self.show_all_records)
+        self.show_records_button.pack()
+
         self.chart_label = tk.Label(root)
         self.chart_label.pack()
 
@@ -75,8 +78,15 @@ class App:
 
         date = datetime.date.today().strftime("%Y-%m-%d")
 
+        desc = simpledialog.askstring(
+            "Description (optional)",
+            "Add a description for this record (leave blank if none):"
+        )
+        if not desc:
+            desc = ""
+
         try:
-            self.data_manager.add_record(record_type, category, amount, date)
+            self.data_manager.add_record(record_type, category, amount, date, description=desc)
             self.update_summary()
             if record_type == "expense":
                 self.check_limit_info(category)
@@ -181,4 +191,11 @@ class App:
             self.chart_label.image = chart_img
         else:
             messagebox.showinfo("Warning", "No data to display balance evolution.")
+
+    def show_all_records(self):
+        """
+        Calls the StatsManager method to display all records in a new Toplevel window.
+        """
+        self.stats_manager.show_all_records()
+
 

@@ -3,6 +3,7 @@ from PIL import Image, ImageTk
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from tkinter import messagebox, Toplevel, ttk
 matplotlib.use('Agg')
 
 class StatsManager:
@@ -115,4 +116,37 @@ class StatsManager:
 
         img = Image.open(buf)
         return ImageTk.PhotoImage(img)
+
+    def show_all_records(self):
+        """
+        Opens a new window (Toplevel) and displays
+        all records (income & expenses) in a table form (Treeview).
+        """
+        if self.data_manager.df.empty:
+            messagebox.showinfo("Info", "No records found!")
+            return
+
+        table_window = Toplevel()
+        table_window.title("All Records - Incomes & Expenses")
+        table_window.geometry("650x400")
+
+        columns = ["Type", "Category", "Amount", "Date", "Description"]
+
+        tree = ttk.Treeview(table_window, columns=columns, show="headings")
+
+        for col in columns:
+            tree.heading(col, text=col)
+            tree.column(col, width=120, anchor="center")
+
+        for idx, row in self.data_manager.df.iterrows():
+            tree.insert("", "end", values=(
+                row["Type"],
+                row["Category"],
+                row["Amount"],
+                row["Date"],
+                row["Description"]
+            ))
+
+        tree.pack(fill="both", expand=True)
+
 
